@@ -95,11 +95,11 @@ qtdeadjacentescidade(X,L,T):-
     tamL([X|L],T).
 
 pares(T):-
-    qtdeadjacentescidade(_,_,T),
+    qtdeadjacentescidade(_,T),
     T mod 2 =:= 0.
 
 impares(T):-
-    qtdeadjacentescidade(_,_,T),
+    qtdeadjacentescidade(_,T),
     T mod 2 =:= 1.
 
 qtdepares(T,L):-
