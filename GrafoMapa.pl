@@ -64,6 +64,8 @@ listaadjacente(X,L):-
 % verifica se uma cidade X pode ser alcançada a partir de uma cidade
 % Y retornando o caminho percorrido (nós visitados) em uma lista.
 
+
+
 tamL([_], 0):- !.
 tamL([_|L], T):-
     tamL(L, X), T is X + 1.
