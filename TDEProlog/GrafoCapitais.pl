@@ -58,28 +58,33 @@ adjacente(X,Y):-
 listaadjacente(X,L):-
     bagof(A,adjacente(X,A),L).
 
-%profundidade(X,Y,L):-
-
+pertence(X,[X|_]):-!.
+pertence(X,[_|Y]):-
+    pertence(X,Y),!.
 
 % Predicado para ver o tamanho de uma lista. Se o tamanho for 0, para.
 % Se houver elementos, ele conta na variável T onde T será X + 1 para
 % somar o tanto de elementos.
-tamL([_], 0):- !.
-tamL([_|L], T):-
-    tamL(L, X), T is X + 1.
+tamanho([_], 0):- !.
+tamanho([_|L], T):-
+    tamanho(L, X), T is X + 1.
 
+profundidade(X,Y,L):-
+    listaadjacente(X,L),
+    listaadjacente(L,Y).
+
+%Usar append para colocar os itens na lista
 
 listavertice(L,T):-
     findall(A,listaadjacente(A,_),L),
-    tamL([_|L],T).
+    tamanho([_|L],T).
 
 listaaresta(L):-
     findall(A,estrada(A,_),L).
 
 qtdearesta(T):-
    listaaresta(L),
-   tamL([_|L],T).
-
+   tamanho([_|L],T).
 
 %qtdeadjacentes(L,T):-
 %    listaadjacente(_,L),
@@ -92,7 +97,7 @@ qtdearesta(T):-
 % T = 2.
 qtdeadjacentescidade(X,L,T):-
     listaadjacente(X,L),
-    tamL([X|L],T).
+    tamanho([X|L],T).
 
 pares(T):-
     qtdeadjacentescidade(_,_,T),
@@ -104,10 +109,10 @@ impares(T):-
 
 qtdepares(T,L):-
     findall(A,pares(A),L),
-    tamL([_|L],T).
+    tamanho([_|L],T).
 
 qtdeimpares(T,L):-
     findall(A,impares(A),L),
-    tamL([_|L],T).
+    tamanho([_|L],T).
 
 
