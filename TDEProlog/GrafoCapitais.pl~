@@ -1,5 +1,3 @@
-s(X,Y):-
-    estrada(X,Y).
 estrada(portoalegre,florianopolis).
 estrada(florianopolis,curitiba).
 estrada(curitiba,saopaulo).
@@ -72,11 +70,11 @@ tamanho([_], 0):- !.
 tamanho([_|L], T):-
     tamanho(L, X), T is X + 1.
 
-resolva(N,[N]) :-
-    final(N). % alcançou a meta
-resolva(N,[N|Caminho]) :-
-    estrada(N,N1), % faça um movimento válido
-    resolva(N1,Caminho). % recursividade
+profundidade(N,[N]) :-
+    read(N).
+profundidade(N,[N|Caminho]) :-
+    estrada(N,N1),               % faça um movimento válido
+    profundidade(N1,Caminho).    % recursividade
 
 %Usar append para colocar os itens na lista
 listavertice(L,T):-
@@ -118,5 +116,6 @@ qtdepares(T,L):-
 qtdeimpares(T,L):-
     findall(A,impares(A),L),
     tamanho([_|L],T).
+
 
 

@@ -1,5 +1,3 @@
-s(X,Y):-
-    estrada(X,Y).
 estrada(portoalegre,florianopolis).
 estrada(florianopolis,curitiba).
 estrada(curitiba,saopaulo).
@@ -49,7 +47,7 @@ estrada(recife,maceio).
 estrada(recife,salvador).
 estrada(maceio,aracaju).
 estrada(aracaju,salvador).
-final(manaus).
+%final(manaus).
 
 adjacente(X,Y):-
     estrada(X,Y);
@@ -73,10 +71,11 @@ tamanho([_|L], T):-
     tamanho(L, X), T is X + 1.
 
 profundidade(N,[N]) :-
-    final(N). % alcançou a meta
+    read(N),
+    final(N).
 profundidade(N,[N|Caminho]) :-
-    estrada(N,N1), % faça um movimento válido
-    profundidade(N1,Caminho). % recursividade
+    estrada(N,N1),               % faça um movimento válido
+    profundidade(N1,Caminho).    % recursividade
 
 %Usar append para colocar os itens na lista
 listavertice(L,T):-
