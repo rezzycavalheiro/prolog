@@ -163,11 +163,10 @@ insereUltimo(Elemento,[],[Elemento]).
 insereUltimo(Elemento,[H|C],[H|Y]):-
     insereUltimo(Elemento,C,Y),!.
 
-
+%listaLimite(No,_,4,L).
 listaLimite(No,Resultado,Max,L):-
     limite(No,Resultado,Max),
     ultimo(Resultado,L).
-%limite(No,_,4,L).
 limite(No,Resultado,Max):-
     limite(No,[],Resultado,Max),
     tamanho(Resultado,T),
