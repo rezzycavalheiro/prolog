@@ -47,7 +47,9 @@ estrada(recife,maceio).
 estrada(recife,salvador).
 estrada(maceio,aracaju).
 estrada(aracaju,salvador).
-final(manaus).
+
+%Destino final para busca
+final(portoalegre).
 
 adjacente(X,Y):-
     estrada(X,Y);
@@ -59,9 +61,18 @@ adjacente(X,Y):-
 listaadjacente(X,L):-
     bagof(A,adjacente(X,A),L).
 
+% Verifica se um elemento faz parte da lista. Exemplo:
+% ?- pertence(curitiba, [saopaulo,curitiba,manaus]).
+% true.
 pertence(X,[X|_]):-!.
 pertence(X,[_|Y]):-
     pertence(X,Y),!.
+
+% Concatena (une) uma lista L1 com uma lista L2. Exemplo:
+% ?- concatena([a,b,c],[d,e,f],L).
+% L = [a, b, c, d, e, f].
+concatena(L1,L2,R):-
+    append(L1,L2,R).
 
 % Predicado para ver o tamanho de uma lista. Se o tamanho for 0, para.
 % Se houver elementos, ele conta na variável T onde T será X + 1 para
@@ -70,11 +81,48 @@ tamanho([_], 0):- !.
 tamanho([_|L], T):-
     tamanho(L, X), T is X + 1.
 
-profundidade(N,[N]) :-
-    read(N).
-profundidade(N,[N|Caminho]) :-
-    estrada(N,N1),               % faça um movimento válido
-    profundidade(N1,Caminho).    % recursividade
+%profundidade(N,[N],_) :-
+%    final(N).
+%profundidade(N,[N|Caminho],Max) :-
+%    Max > 0,
+%    estrada(N,N1),               % faça um movimento válido
+%    Max1 is Max - 1,
+%    profundidade(N1,Caminho,Max1).    % recursividade
+
+% Predicado para busca em PROFUNDIDADE.
+profundidade(No,Resultado):-
+    profundidade(No,[],Resultado).
+profundidade(No,_,[No]):-
+    final(No).
+profundidade(No,Caminho,[No|Resultado]):-
+    not(pertence(No,Caminho)),
+    estrada(No,No1),
+    profundidade(No1,[No|Caminho],Resultado).
+
+% Predicado para busca em LARGURA.
+largura([No|_],L,[No]):-
+    pertence(No,L),!.
+largura([No|Lista],N,[No|L]):-
+    listaadjacente(Lista,L1),
+    concatena(Lista,L1,Nos),
+    largura(Nos,N,L).
+
+%TESTE TESTE TESTE
+
+resolve_largura(Inicio, Solucao) :-
+		busca_largura([[Inicio]],Solucao).
+busca_largura([[N|Caminho]|_],[N|Caminho]):-
+		final(N).
+busca_largura([[N|Caminho]|Caminhos],Solucao):-
+		bagof([M,N|Caminho],
+			(estrada(N,M),not(pertence(M,[N|Caminho]))),
+			NovosCaminhos),
+		concatena(Caminhos, NovosCaminhos, Caminhos1), !,
+		busca_largura(Caminhos1, Solucao);
+		busca_largura(Caminhos, Solucao).
+
+
+%TESTE TESTE TESTE
 
 %Usar append para colocar os itens na lista
 listavertice(L,T):-
