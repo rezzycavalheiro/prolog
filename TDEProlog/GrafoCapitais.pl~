@@ -85,7 +85,7 @@ inverte([H|C],Resultado):-
 
 % Predicado para ver o tamanho de uma lista. Se o tamanho for 0, para.
 % Se houver elementos, ele conta na variável T onde T será X + 1 para
-% somar o tanto de elementos. Exempplo
+% somar o tanto de elementos. Exemplo:
 % ?- tamanho([a,b,c],T).
 % T = 2.
 tamanho([_], 0):-!.
@@ -94,9 +94,15 @@ tamanho([_|Lista], Tamanho):-
     Tamanho is X + 1.
 
 % Predicado para busca em PROFUNDIDADE.
-% Para consultar, primeiro alterar o destino final em final(N) e então:
+% "profundidadeMax" retorna as listas com os caminhos até um determinado
+% ponto escolhido pelo usuário. Para consultar, primeiro alterar o
+% destino final em final(N) e então:
+% ?- profundidadeMax(curitiba,R,4).
+% "profundidade" retorna listas de caminhos possíveis entre dois
+% vértices, repetindo os vértices. Por isso é interessante usar o
+% predicado "profundidadeMax" para determinar uma parada e evitar
+% ciclos. Para consulta:
 % ?- profundidade(curitiba,R).
-
 profundidadeMax(No,Resultado,Max):-
     profundidadeMax(No,[],Resultado,Max).
 profundidadeMax(No,_,[No],_):-
@@ -117,10 +123,21 @@ profundidade(No,Caminho,[No|Resultado]):-
     adjacente(No,No1),
     profundidade(No1,[No|Caminho],Resultado).
 
+%Profundidade para grafo direcionado.
+profestrada(No,Resultado):-
+    profestrada(No,[],Resultado).
+profestrada(No,_,[No]):-
+    final(No).
+profestrada(No,Caminho,[No|Resultado]):-
+    not(pertence(No,Caminho)),
+    estrada(No,No1),
+    profestrada(No1,[No|Caminho],Resultado).
+
 
 % Predicado para busca em LARGURA.
-% Para consultar, primeiro alterar o destino final em final(N) e então:
-% ?- largura(portoalegre,R,L).
+% Retorna uma lista com os vértices, em ordem crescente de tamanho de
+% lista. Para consultar, primeiro alterar o destino final em final(N) e
+% então: ?- largura(portoalegre,_,L).
 largura(No,Resultado,ListaInvertida) :-
 		buscal([[No]],Resultado),
                 inverte(Resultado,ListaInvertida).
@@ -132,38 +149,73 @@ buscal([[No|Caminho]|Caminho2],Resultado):-
 		buscal(Caminhos1, Resultado);
 		buscal(Caminho2, Resultado).
 
-% Predicado para a DISTANCIA.
-%
-% Retorna o tamanho da lista encontrada na profudundidade.
+% Encontra o último elemento de uma lista. Exemplo:
+% ?- ultimo([a,b,c,d,e],X).
+% X = e.
+ultimo([Elemento],Elemento).
+ultimo([_|Cauda],Elemento):-
+    ultimo(Cauda,Elemento),!.
+
+% Insere um elemento na última posição da lista. Exemplo:
+% ?- insereUltimo(6,[1,2,3],L).
+%L = [1, 2, 3, 6].
+insereUltimo(Elemento,[],[Elemento]).
+insereUltimo(Elemento,[H|C],[H|Y]):-
+    insereUltimo(Elemento,C,Y),!.
+
+
+listaLimite(No,Resultado,Max,X):-
+    limite(No,Resultado,Max),
+    ultimo(Resultado,L),
+    insereUltimo(L,[_],X).
+%limite(No,_,4,L).
+limite(No,Resultado,Max):-
+    limite(No,[],Resultado,Max),
+    tamanho(Resultado,T),
+    T == Max.
+limite(No,_,[No],_):-
+    final(_).
+limite(No,Caminho,[No|Resultado],Max):-
+    Max > 0,
+    Max1 is Max - 1,
+    not(pertence(No,Caminho)),
+    adjacente(No,No1),
+    limite(No1,[No|Caminho],Resultado,Max1).
+
+
+% Retorna a distância entre um nó inicial e o final(N) escolhido, pela
+% profundidade.
 % Exemplo:
-% ?- profundidade_distancia(curitiba,R,4,X).
+% ?- prof_distancia(curitiba,R,4,X).
 % R = [curitiba, saopaulo, riodejaneiro, vitoria],
+% X = 3 ;
+% R = [curitiba,saopaulo, riodejaneiro, belohorizonte, vitoria],
 % X = 4 ;
-% R = [curitiba, saopaulo, riodejaneiro, belohorizonte, vitoria],
-% X = 5 ;
 % R = [curitiba, saopaulo, belohorizonte, vitoria],
-% X = 4 ;
-profundidade_distancia(No,Resultado,Max,X1):-
+% X = 3 ;
+% Isto siginifica que a distância de curitiba até vitoria, na última
+% lista, é 3 (3 arestas).
+prof_distancia(No,Resultado,Max,Distancia):-
     profundidadeMax(No,Resultado,Max),
     length(Resultado,X),
-    X1 is X-1.
+    Distancia is X-1.
 
-distancia(_,_,[],[]):-!.
-distancia(Distancia,No,[Resultado|Item],Lista):-
-    profundidade_distancia(No,Resultado,Max,X),
-    Max == Distancia,
-    concatena(Resultado,Item,Lista).
-
-
-% TESTE
-
-
-
-
-
-
+% Cálculo da distância por largura. Exemplo:
+% ?- larg_distancia(curitiba,_,L,D).
+% L = [curitiba, saopaulo, riodejaneiro, vitoria],
+% D = 3 ;
+% L = [curitiba, saopaulo, belohorizonte, vitoria],
+% D = 3 ;
+% L = [curitiba, saopaulo, riodejaneiro, belohorizonte, vitoria],
+% D = 4
+larg_distancia(No,Resultado,ListaInvertida,Distancia):-
+    largura(No,Resultado,ListaInvertida),
+    length(ListaInvertida,X),
+    Distancia is X-1.
 
 
+
+%--------------PREDICADOS ADICIONAIS-----------------
 listavertice(L,T):-
     findall(A,listaadjacente(A,_),L),
     tamanho([_|L],T).
@@ -174,10 +226,6 @@ listaaresta(L):-
 qtdearesta(T):-
    listaaresta(L),
    tamanho([_|L],T).
-
-%qtdeadjacentes(L,T):-
-%    listaadjacente(_,L),
-%    tamL([_|L],T).
 
 % Quantidade de adjacentes a uma cidade. Retorna a lista e o tamanho
 % dessa lista. Exemplo:
