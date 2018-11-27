@@ -79,18 +79,24 @@ concatena(L1,L2,R):-
 % inverte([a,b,c],R).
 % R = [c, b, a].
 inverte([],[]).
-inverte([H|C],R):-
+inverte([H|C],Resultado):-
     inverte(C,R2),
-    append(R2,[H],R).
+    append(R2,[H],Resultado).
 
 % Predicado para ver o tamanho de uma lista. Se o tamanho for 0, para.
 % Se houver elementos, ele conta na variável T onde T será X + 1 para
-% somar o tanto de elementos.
-tamanho([_], 0):- !.
-tamanho([_|L], T):-
-    tamanho(L, X), T is X + 1.
+% somar o tanto de elementos. Exempplo
+% ?- tamanho([a,b,c],T).
+% T = 2.
+tamanho([_], 0):-!.
+tamanho([_|Lista], Tamanho):-
+    tamanho(Lista, X),
+    Tamanho is X + 1.
 
 % Predicado para busca em PROFUNDIDADE.
+% Para consultar, primeiro alterar o destino final em final(N) e então:
+% ?- profundidade(curitiba,R).
+
 profundidade(No,Resultado):-
     profundidade(No,[],Resultado).
 profundidade(No,_,[No]):-
@@ -101,18 +107,34 @@ profundidade(No,Caminho,[No|Resultado]):-
     profundidade(No1,[No|Caminho],Resultado).
 
 % Predicado para busca em LARGURA.
-largura(Inicio, Solucao,ListaInvertida) :-
-		buscal([[Inicio]],Solucao),
-                inverte(Solucao,ListaInvertida).
-buscal([[N|Caminho]|_],[N|Caminho]):-
-		final(N).
-buscal([[N|Caminho]|Caminhos],Solucao):-
-		bagof([M,N|Caminho],
-			(estrada(N,M),not(pertence(M,[N|Caminho]))),
-			NovosCaminhos),
-		concatena(Caminhos, NovosCaminhos, Caminhos1), !,
-		buscal(Caminhos1, Solucao);
-		buscal(Caminhos, Solucao).
+% Para consultar, primeiro alterar o destino final em final(N) e então:
+% ?- largura(portoalegre,R,L).
+largura(No,Resultado,ListaInvertida) :-
+		buscal([[No]],Resultado),
+                inverte(Resultado,ListaInvertida).
+buscal([[No|Caminho]|_],[No|Caminho]):-
+		final(No).
+buscal([[No|Caminho]|Caminho2],Resultado):-
+		bagof([X,No|Caminho],(estrada(No,X),not(pertence(X,[No|Caminho]))),
+			Caminho3),
+		concatena(Caminho2, Caminho3, Caminhos1), !,
+		buscal(Caminhos1, Resultado);
+		buscal(Caminho2, Resultado).
+
+% Predicado para a DISTANCIA.
+
+% Retorna o tamanho da lista encontrada na profudundidade.
+% Exemplo:
+% ?- profundidade_distancia(curitiba,R,X).
+% R = [curitiba, saopaulo, riodejaneiro, vitoria],
+% X = 4 ;
+% R = [curitiba, saopaulo, riodejaneiro, belohorizonte, vitoria],
+% X = 5 ;
+% R = [curitiba, saopaulo, belohorizonte, vitoria],
+% X = 4 ;
+profundidade_distancia(No,Resultado,X):-
+    profundidade(No,Resultado),
+    length(Resultado,X).
 
 listavertice(L,T):-
     findall(A,listaadjacente(A,_),L),
