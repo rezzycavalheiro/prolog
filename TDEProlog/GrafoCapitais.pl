@@ -49,7 +49,7 @@ estrada(maceio,aracaju).
 estrada(aracaju,salvador).
 
 %Destino final para busca
-final(portoalegre).
+final(vitoria).
 
 % Capitais adjacentes
 adjacente(X,Y):-
@@ -98,7 +98,7 @@ tamanho([_|Lista], Tamanho):-
 % ?- profundidade(curitiba,R).
 
 profundidadeMax(No,Resultado,Max):-
-    profundidade(No,[],Resultado,Max).
+    profundidadeMax(No,[],Resultado,Max).
 profundidadeMax(No,_,[No],_):-
     final(No).
 profundidadeMax(No,Caminho,[No|Resultado],Max):-
@@ -106,7 +106,7 @@ profundidadeMax(No,Caminho,[No|Resultado],Max):-
     Max1 is Max - 1,
     not(pertence(No,Caminho)),
     adjacente(No,No1),
-    profundidade(No1,[No|Caminho],Resultado,Max1).
+    profundidadeMax(No1,[No|Caminho],Resultado,Max1).
 
 profundidade(No,Resultado):-
     profundidade(No,[],Resultado).
@@ -132,30 +132,28 @@ buscal([[No|Caminho]|Caminho2],Resultado):-
 		buscal(Caminhos1, Resultado);
 		buscal(Caminho2, Resultado).
 
-% Predicado para a DISTANCIA.
-%
-% Retorna o tamanho da lista encontrada na profudundidade.
+% Retorna a distância entre um nó inicial e o final(N) escolhido.
 % Exemplo:
-% ?- profundidade_distancia(curitiba,R,X).
+% ?- profundidade_distancia(curitiba,R,4,X).
 % R = [curitiba, saopaulo, riodejaneiro, vitoria],
 % X = 4 ;
 % R = [curitiba, saopaulo, riodejaneiro, belohorizonte, vitoria],
 % X = 5 ;
 % R = [curitiba, saopaulo, belohorizonte, vitoria],
 % X = 4 ;
-profundidade_distancia(No,Resultado,X1):-
-    profundidade(No,Resultado),
+profundidade_distancia(No,Resultado,Max,X1):-
+    profundidadeMax(No,Resultado,Max),
     length(Resultado,X),
     X1 is X-1.
 
 distancia(_,_,[],[]):-!.
 distancia(Distancia,No,[Resultado|Item],Lista):-
-    profundidade_distancia(No,Resultado,X),
-    X == Distancia,
+    profundidade_distancia(No,Resultado,Max,X),
+    Max == Distancia,
     concatena(Resultado,Item,Lista).
 
-% TESTE
 
+% TESTE
 
 
 
