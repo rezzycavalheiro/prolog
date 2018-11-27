@@ -49,8 +49,9 @@ estrada(maceio,aracaju).
 estrada(aracaju,salvador).
 
 %Destino final para busca
-final(curitiba).
+final(vitoria).
 
+% Capitais adjacentes
 adjacente(X,Y):-
     estrada(X,Y);
     estrada(Y,X).
@@ -74,20 +75,20 @@ pertence(X,[_|Y]):-
 concatena(L1,L2,R):-
     append(L1,L2,R).
 
+% Inverte uma lista. Exemplo:
+% inverte([a,b,c],R).
+% R = [c, b, a].
+inverte([],[]).
+inverte([H|C],R):-
+    inverte(C,R2),
+    append(R2,[H],R).
+
 % Predicado para ver o tamanho de uma lista. Se o tamanho for 0, para.
 % Se houver elementos, ele conta na variável T onde T será X + 1 para
 % somar o tanto de elementos.
 tamanho([_], 0):- !.
 tamanho([_|L], T):-
     tamanho(L, X), T is X + 1.
-
-%profundidade(N,[N],_) :-
-%    final(N).
-%profundidade(N,[N|Caminho],Max) :-
-%    Max > 0,
-%    estrada(N,N1),               % faça um movimento válido
-%    Max1 is Max - 1,
-%    profundidade(N1,Caminho,Max1).    % recursividade
 
 % Predicado para busca em PROFUNDIDADE.
 profundidade(No,Resultado):-
@@ -100,31 +101,19 @@ profundidade(No,Caminho,[No|Resultado]):-
     profundidade(No1,[No|Caminho],Resultado).
 
 % Predicado para busca em LARGURA.
-largura([No|_],L,[No]):-
-    pertence(No,L),!.
-largura([No|Lista],N,[No|L]):-
-    listaadjacente(Lista,L1),
-    concatena(Lista,L1,Nos),
-    largura(Nos,N,L).
-
-%TESTE TESTE TESTE
-
-resolve_largura(Inicio, Solucao) :-
-		busca_largura([[Inicio]],Solucao).
-busca_largura([[N|Caminho]|_],[N|Caminho]):-
+largura(Inicio, Solucao,ListaInvertida) :-
+		buscal([[Inicio]],Solucao),
+                inverte(Solucao,ListaInvertida).
+buscal([[N|Caminho]|_],[N|Caminho]):-
 		final(N).
-busca_largura([[N|Caminho]|Caminhos],Solucao):-
+buscal([[N|Caminho]|Caminhos],Solucao):-
 		bagof([M,N|Caminho],
 			(estrada(N,M),not(pertence(M,[N|Caminho]))),
 			NovosCaminhos),
 		concatena(Caminhos, NovosCaminhos, Caminhos1), !,
-		busca_largura(Caminhos1, Solucao);
-		busca_largura(Caminhos, Solucao).
+		buscal(Caminhos1, Solucao);
+		buscal(Caminhos, Solucao).
 
-
-%TESTE TESTE TESTE
-
-%Usar append para colocar os itens na lista
 listavertice(L,T):-
     findall(A,listaadjacente(A,_),L),
     tamanho([_|L],T).
