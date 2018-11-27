@@ -97,16 +97,26 @@ tamanho([_|Lista], Tamanho):-
 % Para consultar, primeiro alterar o destino final em final(N) e então:
 % ?- profundidade(curitiba,R).
 
-profundidade(No,Resultado,Max):-
+profundidadeMax(No,Resultado,Max):-
     profundidade(No,[],Resultado,Max).
-profundidade(No,_,[No],_):-
+profundidadeMax(No,_,[No],_):-
     final(No).
-profundidade(No,Caminho,[No|Resultado],Max):-
+profundidadeMax(No,Caminho,[No|Resultado],Max):-
     Max > 0,
     Max1 is Max - 1,
     not(pertence(No,Caminho)),
     adjacente(No,No1),
+    profundidade(No1,[No|Caminho],Resultado,Max1).
+
+profundidade(No,Resultado):-
+    profundidade(No,[],Resultado).
+profundidade(No,_,[No]):-
+    final(No).
+profundidade(No,Caminho,[No|Resultado]):-
+    not(pertence(No,Caminho)),
+    adjacente(No,No1),
     profundidade(No1,[No|Caminho],Resultado).
+
 
 % Predicado para busca em LARGURA.
 % Para consultar, primeiro alterar o destino final em final(N) e então:
@@ -141,7 +151,7 @@ profundidade_distancia(No,Resultado,X1):-
 distancia(Distancia,No,Lista):-
     profundidade_distancia(No,Resultado,X),
     X == Distancia,
-
+    Lista is Resultado.
 
 listavertice(L,T):-
     findall(A,listaadjacente(A,_),L),
