@@ -148,10 +148,21 @@ profundidade_distancia(No,Resultado,X1):-
     length(Resultado,X),
     X1 is X-1.
 
-distancia(Distancia,No,Lista):-
+distancia(_,_,[],[]):-!.
+distancia(Distancia,No,[Resultado|Item],Lista):-
     profundidade_distancia(No,Resultado,X),
     X == Distancia,
-    .
+    concatena(Resultado,Item,Lista).
+
+% TESTE
+
+
+
+
+
+
+
+
 
 listavertice(L,T):-
     findall(A,listaadjacente(A,_),L),
